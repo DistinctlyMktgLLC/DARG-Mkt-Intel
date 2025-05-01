@@ -1,3 +1,17 @@
+import socket
+import os
+
+supabase_url = os.environ.get("SUPABASE_URL")
+try:
+    print("Testing DNS resolution for:", supabase_url)
+    host = supabase_url.replace("https://", "").replace("http://", "").split("/")[0]
+    print("Host to resolve:", host)
+    ip = socket.gethostbyname(host)
+    print("Resolved IP:", ip)
+except Exception as e:
+    print("DNS resolution failed:", e)
+
+
 import streamlit as st
 import datetime
 import os
