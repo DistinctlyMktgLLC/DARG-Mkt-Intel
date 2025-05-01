@@ -120,6 +120,15 @@ def render_opportunity_map(title="Market Opportunity Map", state_filter=None, he
             st.warning(f"Map data is missing required columns: {', '.join(missing_columns)}")
             return None, None
         
+        # IMPORTANT FIX: Convert string columns to numeric types
+        numeric_columns = ['latitude', 'longitude', 'market_size', 'growth_rate', 'population']
+        for col in numeric_columns:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        # Remove any rows with NaN values in critical coordinates
+        df = df.dropna(subset=['latitude', 'longitude'])
+        
         # Add opportunity score if not present (calculated as growth_rate * market_size / 1000)
         if 'opportunity_score' not in df.columns:
             df['opportunity_score'] = (df['growth_rate'] * df['market_size'] / 1000).round(1)
