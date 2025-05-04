@@ -1,0 +1,80 @@
+Supabase Setup Guide for DARG Market Intelligence Platform
+Overview
+This document provides a comprehensive guide for setting up the Supabase backend for the DARG Market Intelligence Platform.
+
+Files Created
+1. Database Setup
+supabase_manual_setup_guide.md: Step-by-step guide with SQL commands to create tables in Supabase SQL Editor
+setup_supabase_tables.py: Python script to create tables (requires the execute_sql RPC function)
+create_supabase_tables_direct.py: Alternative script using direct API calls to create tables
+upload_data_to_supabase.py: Script to upload CSV data to existing Supabase tables
+test_supabase_connection.py: Script to test the Supabase connection and table setup
+2. Application Integration
+core/data/supabase_client.py: Client library for interacting with Supabase in your application
+utils/middleware/data_access.py: Middleware layer for accessing data with tier-based filtering
+examples/supabase_streamlit_example.py: Example of a Streamlit app with Supabase integration
+examples/twilio_notifications_example.py: Example of Twilio integration for SMS notifications
+Database Structure
+Main Tables
+people_data: Core dataset with demographic and psychographic information
+
+Primary key: id (SERIAL)
+Contains demographic and psychographic data from DARG_Test_032125 - People_DataSet (4).csv
+us_race_breakdown: Geographic and racial demographic data by ZIP code
+
+Primary key: zip (TEXT)
+Reference data from DARG_Test_032125 - US_Race_Breakdown.csv
+loyalty_segments: Marketing strategies and loyalty journey information
+
+Primary key: id (SERIAL)
+Data from Insights_DataDictionary - PeopleData_LoyatlyTable.csv
+loyalty_metrics: Descriptions of loyalty metrics
+
+Primary key: id (SERIAL)
+Data from Insights_DataDictionary - LoyaltyTable_MetricsDefined.csv
+loyalty_values: Descriptions of loyalty values
+
+Primary key: id (SERIAL)
+Data from Insights_DataDictionary - LoyaltyTable_ValuesDefined.csv
+tier_resource_access: Controls resource limits by user tier
+
+Primary key: id (SERIAL)
+Unique constraint on (tier, resource_type)
+Defines access levels for different tiers (free, accelerate, scale)
+user_profiles: User authentication and profile information
+
+Primary key: id (UUID)
+Links to Supabase Auth system
+Stores user's tier level
+Setup Instructions
+Step 1: Create Tables in Supabase
+Follow the instructions in supabase_manual_setup_guide.md to create the necessary tables using the Supabase SQL Editor.
+
+Step 2: Upload Data
+Once tables are created, run upload_data_to_supabase.py to upload the CSV data to Supabase:
+
+python upload_data_to_supabase.py
+Step 3: Test the Setup
+Run the test script to verify that the tables and data are accessible:
+
+python test_supabase_connection.py
+Step 4: Integrate with Application
+Use the provided client library and middleware in your Streamlit application:
+
+from utils.middleware.data_access import data_access
+# Get data with tier-based filtering
+people_data = data_access.get_filtered_people_data(filters={"state": "NY"})
+Tier-Based Access Control
+The platform implements tier-based access control:
+
+Free tier: Access to 33% of the data
+Accelerate tier: Access to 66% of the data
+Scale tier: Access to 100% of the data
+This is managed through the tier_resource_access table and enforced by the data access middleware.
+
+SMS Notifications with Twilio
+The platform includes Twilio integration for SMS notifications. See the example in examples/twilio_notifications_example.py and ensure the following environment variables are set:
+
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+TWILIO_PHONE_NUMBER
